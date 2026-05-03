@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Zip / build artifacts
+*.zip
+*.crx
+
+# Editor folders
+.vscode/
+.idea/
