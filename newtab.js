@@ -28,6 +28,7 @@ const DEFAULT_SETTINGS = {
   show_greeting:  true,
   show_search:    true,
   show_weather:   true,
+  color_scheme:   'light', // 'light' | 'dark'
 };
 
 // Globally accessible — populated synchronously from cache, then refreshed async.
@@ -64,6 +65,7 @@ function applySettingsToBody() {
   document.body.classList.toggle('hide-search',   !SETTINGS.show_search);
   document.body.classList.toggle('hide-weather',  !SETTINGS.show_weather);
   document.body.classList.toggle('hide-seconds',  !SETTINGS.show_seconds);
+  document.body.classList.toggle('dark',           SETTINGS.color_scheme === 'dark');
 }
 
 // Apply immediately from cache, then refresh from sync storage
@@ -725,6 +727,11 @@ function saveFavorites(favs, cb) {
 function renderFavorites(favs) {
   const grid = document.getElementById('favs-grid');
   grid.innerHTML = '';
+
+  // Show/hide the + button based on whether the grid is full
+  const addBtn = document.getElementById('btn-add-fav');
+  addBtn.style.display = favs.length >= 12 ? 'none' : '';
+
   if (!favs.length) {
     renderEmptyState(grid, 'favorites', 'No favorites yet', 'Tap + above to pin your most-loved sites for quick access.');
     return;
@@ -844,6 +851,7 @@ document.getElementById('fav-save').onclick = () => {
   loadFavorites((favs) => {
     if (_editingFavIdx !== null) favs[_editingFavIdx] = { ...favs[_editingFavIdx], name, url };
     else favs.push({ id: Date.now(), name, url });
+    favs = favs.slice(0, 12); // hard cap
     saveFavorites(favs, () => { renderFavorites(favs); closeFavDialog(); });
   });
 };
@@ -1235,6 +1243,7 @@ const settingsFab = document.getElementById('settings-fab');
 function openSettings() {
   // Populate form with current values
   document.getElementById('setting-name').value = SETTINGS.name || '';
+  document.getElementById('setting-dark-mode').checked     = SETTINGS.color_scheme === 'dark';
   document.getElementById('setting-show-seconds').checked  = SETTINGS.show_seconds;
   document.getElementById('setting-show-greeting').checked = SETTINGS.show_greeting;
   document.getElementById('setting-show-search').checked   = SETTINGS.show_search;
@@ -1278,14 +1287,20 @@ document.getElementById('setting-name').addEventListener('input', debounce((e) =
 
 // Toggles
 [
+  ['setting-dark-mode',     null],  // handled separately below
   ['setting-show-seconds',  'show_seconds'],
   ['setting-show-greeting', 'show_greeting'],
   ['setting-show-search',   'show_search'],
   ['setting-show-weather',  'show_weather'],
 ].forEach(([id, key]) => {
+  if (!key) return;
   document.getElementById(id).addEventListener('change', (e) => {
     changeSetting(key, e.target.checked);
   });
+});
+
+document.getElementById('setting-dark-mode').addEventListener('change', (e) => {
+  changeSetting('color_scheme', e.target.checked ? 'dark' : 'light');
 });
 
 // Segmented buttons
