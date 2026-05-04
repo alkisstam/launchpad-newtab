@@ -1515,3 +1515,43 @@ body.dark .note-btn.delete:hover { background: #3b1a1a; }
   color: #e65100;
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
 }
+
+/* ── Pomodoro in hero panel ── */
+.hero-content .pomodoro-widget {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  gap: 10px;
+}
+.hero-content .pom-modes {
+  background: rgba(255,255,255,0.15);
+}
+.hero-content .pom-mode-btn {
+  color: rgba(255,255,255,0.75);
+}
+.hero-content .pom-mode-btn.active {
+  background: rgba(255,255,255,0.88);
+  color: var(--md-primary);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.hero-content .pom-mode-btn:not(.active):hover { color: #fff; }
+.hero-content .pom-ring-bg { stroke: rgba(255,255,255,0.25); }
+.hero-content .pom-ring-progress { stroke: rgba(255,255,255,0.9); }
+.hero-content .pom-time { color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.2); }
+.hero-content .pom-label { color: rgba(255,255,255,0.7); }
+.hero-content .pom-start-btn {
+  background: rgba(255,255,255,0.9);
+}
+.hero-content .pom-start-btn:hover { background: #fff; }
+.hero-content .pom-start-btn .material-symbols-rounded { color: var(--md-primary); }
+.hero-content .pom-session-count { color: rgba(255,255,255,0.8); }
+.hero-content .btn-icon-sm {
+  background: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.8);
+}
+.hero-content .btn-icon-sm .material-symbols-rounded { color: rgba(255,255,255,0.8); }
+.hero-content .btn-icon-sm:hover { background: rgba(255,255,255,0.25); }
+.hero-content .btn-icon-sm:hover .material-symbols-rounded { color: #fff; }
