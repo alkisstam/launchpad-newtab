@@ -285,23 +285,6 @@
       <div class="dl-placeholder">Loading recent downloads…</div>
     </div>
 
-    <!-- Download context menu -->
-    <div class="dl-menu hidden" id="dl-menu">
-      <button class="dl-menu-item" id="dl-open">
-        <span class="material-symbols-rounded">open_in_new</span> Open file
-      </button>
-      <button class="dl-menu-item" id="dl-folder">
-        <span class="material-symbols-rounded">folder_open</span> Show in folder
-      </button>
-      <button class="dl-menu-item" id="dl-copy">
-        <span class="material-symbols-rounded">content_copy</span> Copy filename
-      </button>
-      <div class="dl-menu-divider"></div>
-      <button class="dl-menu-item danger" id="dl-delete">
-        <span class="material-symbols-rounded">delete</span> Remove from list
-      </button>
-    </div>
-
     <div class="section-divider"></div>
 
     <div class="panel-header">
@@ -330,6 +313,23 @@
 
 
   </section>
+
+  <!-- Download context menu — must be outside .panel to avoid transform containing-block bug -->
+  <div class="dl-menu hidden" id="dl-menu">
+    <button class="dl-menu-item" id="dl-open">
+      <span class="material-symbols-rounded">open_in_new</span> Open file
+    </button>
+    <button class="dl-menu-item" id="dl-folder">
+      <span class="material-symbols-rounded">folder_open</span> Show in folder
+    </button>
+    <button class="dl-menu-item" id="dl-copy">
+      <span class="material-symbols-rounded">content_copy</span> Copy filename
+    </button>
+    <div class="dl-menu-divider"></div>
+    <button class="dl-menu-item danger" id="dl-delete">
+      <span class="material-symbols-rounded">delete</span> Remove from list
+    </button>
+  </div>
 
   <script src="newtab.js"></script>
 </body>
