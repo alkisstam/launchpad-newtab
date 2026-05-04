@@ -1383,3 +1383,81 @@ document.getElementById('settings-reset').onclick = () => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && !settingsDialog.classList.contains('hidden')) closeSettings();
 });
+
+
+// ─────────────────────────────────────
+// 13. POMODORO TIMER
+// ─────────────────────────────────────
+const POM_DURATIONS = { work: 25 * 60, short: 5 * 60, long: 15 * 60 };
+const POM_LABELS    = { work: 'Focus', short: 'Short break', long: 'Long break' };
+const POM_CIRCUMFERENCE = 2 * Math.PI * 52;
+
+let _pomMode     = 'work';
+let _pomSecsLeft = POM_DURATIONS.work;
+let _pomRunning  = false;
+let _pomSessions = 0;
+let _pomInterval = null;
+
+function pomUpdateDisplay() {
+  const m = Math.floor(_pomSecsLeft / 60).toString().padStart(2, '0');
+  const s = (_pomSecsLeft % 60).toString().padStart(2, '0');
+  document.getElementById('pom-time').textContent = `${m}:${s}`;
+  const fraction = _pomSecsLeft / POM_DURATIONS[_pomMode];
+  document.getElementById('pom-ring-progress').style.strokeDashoffset =
+    POM_CIRCUMFERENCE * (1 - fraction);
+}
+
+function pomSetMode(mode) {
+  clearInterval(_pomInterval);
+  _pomMode     = mode;
+  _pomSecsLeft = POM_DURATIONS[mode];
+  _pomRunning  = false;
+  document.querySelectorAll('.pom-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.getElementById('pom-start-icon').textContent = 'play_arrow';
+  document.getElementById('pom-label').textContent = POM_LABELS[mode];
+  pomUpdateDisplay();
+}
+
+function pomTick() {
+  if (_pomSecsLeft <= 0) {
+    clearInterval(_pomInterval);
+    _pomRunning = false;
+    document.getElementById('pom-start-icon').textContent = 'play_arrow';
+    if (_pomMode === 'work') {
+      _pomSessions++;
+      document.getElementById('pom-session-num').textContent = _pomSessions;
+    }
+    if (Notification?.permission === 'granted') {
+      const body = _pomMode === 'work'
+        ? `Pomodoro #${_pomSessions} done! Take a ${_pomSessions % 4 === 0 ? 'long' : 'short'} break.`
+        : 'Break over — time to focus!';
+      new Notification('Launchpad Timer', { body, icon: 'icons/icon128.png' });
+    }
+    pomUpdateDisplay();
+    return;
+  }
+  _pomSecsLeft--;
+  pomUpdateDisplay();
+}
+
+function pomToggle() {
+  if (_pomRunning) {
+    clearInterval(_pomInterval);
+    _pomRunning = false;
+    document.getElementById('pom-start-icon').textContent = 'play_arrow';
+  } else {
+    if (Notification?.permission === 'default') Notification.requestPermission();
+    _pomRunning  = true;
+    document.getElementById('pom-start-icon').textContent = 'pause';
+    _pomInterval = setInterval(pomTick, 1000);
+  }
+}
+
+// Init ring geometry
+const _pomRingProgress = document.getElementById('pom-ring-progress');
+_pomRingProgress.style.strokeDasharray  = POM_CIRCUMFERENCE;
+_pomRingProgress.style.strokeDashoffset = 0;
+
+document.querySelectorAll('.pom-mode-btn').forEach(btn => { btn.onclick = () => pomSetMode(btn.dataset.mode); });
+document.getElementById('pom-start').onclick = pomToggle;
+document.getElementById('pom-reset').onclick = () => pomSetMode(_pomMode);

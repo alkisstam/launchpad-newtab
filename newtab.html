@@ -297,6 +297,43 @@
     </div>
     <ul class="todo-list" id="todo-list"></ul>
 
+    <div class="section-divider"></div>
+
+    <!-- ── Pomodoro Timer ── -->
+    <div class="panel-header">
+      <span class="material-symbols-rounded">timer</span>
+      <span class="panel-title">Pomodoro</span>
+    </div>
+    <div class="pomodoro-widget">
+      <div class="pom-modes">
+        <button class="pom-mode-btn active" data-mode="work">Work</button>
+        <button class="pom-mode-btn" data-mode="short">Short break</button>
+        <button class="pom-mode-btn" data-mode="long">Long break</button>
+      </div>
+      <div class="pom-ring-wrap">
+        <svg class="pom-ring" viewBox="0 0 120 120">
+          <circle class="pom-ring-bg" cx="60" cy="60" r="52"/>
+          <circle class="pom-ring-progress" id="pom-ring-progress" cx="60" cy="60" r="52"/>
+        </svg>
+        <div class="pom-time-display">
+          <span class="pom-time" id="pom-time">25:00</span>
+          <span class="pom-label" id="pom-label">Focus</span>
+        </div>
+      </div>
+      <div class="pom-controls">
+        <button class="btn-icon-sm" id="pom-reset" title="Reset timer">
+          <span class="material-symbols-rounded">restart_alt</span>
+        </button>
+        <button class="pom-start-btn" id="pom-start" title="Start / Pause">
+          <span class="material-symbols-rounded" id="pom-start-icon">play_arrow</span>
+        </button>
+        <div class="pom-session-count" title="Pomodoros completed">
+          <span class="material-symbols-rounded">local_fire_department</span>
+          <span id="pom-session-num">0</span>
+        </div>
+      </div>
+    </div>
+
   </section>
 
   <script src="newtab.js"></script>

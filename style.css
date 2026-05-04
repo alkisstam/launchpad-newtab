@@ -1373,3 +1373,145 @@ body.dark .note-btn.delete:hover { background: #3b1a1a; }
   max-width: 220px;
   line-height: 1.4;
 }
+
+/* ══════════════════════════════════════════════
+   POMODORO TIMER
+   ══════════════════════════════════════════════ */
+.pomodoro-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 2px 0 8px;
+  flex-shrink: 0;
+}
+
+.pom-modes {
+  display: flex;
+  background: var(--md-surface-container-low);
+  border-radius: 20px;
+  padding: 2px;
+}
+
+.pom-mode-btn {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--md-on-surface-variant);
+  background: transparent;
+  border: none;
+  border-radius: 18px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background .15s, color .15s, box-shadow .15s;
+  white-space: nowrap;
+}
+.pom-mode-btn.active {
+  background: var(--md-surface);
+  color: var(--md-primary);
+  box-shadow: var(--md-shadow-1);
+}
+.pom-mode-btn:not(.active):hover { color: var(--md-on-surface); }
+
+.pom-ring-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pom-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.pom-ring-bg {
+  fill: none;
+  stroke: var(--md-outline-variant);
+  stroke-width: 5;
+}
+
+.pom-ring-progress {
+  fill: none;
+  stroke: var(--md-primary);
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+}
+
+.pom-time-display {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.pom-time {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--md-on-surface);
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.pom-label {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--md-on-surface-variant);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pom-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.pom-start-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--md-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--md-shadow-1);
+  transition: background .15s, box-shadow .15s, transform .15s;
+}
+.pom-start-btn:hover {
+  background: color-mix(in srgb, var(--md-primary) 88%, #000);
+  box-shadow: var(--md-shadow-2);
+}
+.pom-start-btn:active { transform: scale(.93); }
+.pom-start-btn .material-symbols-rounded {
+  font-size: 24px;
+  color: var(--md-on-primary);
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.pom-session-count {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--md-on-surface-variant);
+  min-width: 28px;
+}
+.pom-session-count .material-symbols-rounded {
+  font-size: 17px;
+  color: #e65100;
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+}
