@@ -538,7 +538,7 @@ function renderTopSites() {
     list.forEach((site) => {
       const a = document.createElement('a');
       a.className = 'site-card md-card ripple';
-      a.href = site.url; a.title = site.url;
+      a.href = site.url; a.title = site.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
       const faviconUrl = getFaviconUrl(site.url);
       const initial = getInitial(site.url, site.title);
       const title = escHtml(cleanTitle(site.url, site.title));
@@ -774,7 +774,7 @@ function renderFavorites(favs) {
 
     const a = document.createElement('a');
     a.className = 'site-card md-card ripple';
-    a.href = fav.url; a.title = fav.url;
+    a.href = fav.url; a.title = fav.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
     a.draggable = false;
     a.style.animationDelay = `${idx * 0.04}s`;
     const faviconUrl = getFaviconUrl(fav.url);
