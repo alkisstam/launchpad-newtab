@@ -1516,14 +1516,46 @@ body.dark .note-btn.delete:hover { background: #3b1a1a; }
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
 }
 
+/* ── Pomodoro toggle button ── */
+.pom-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 14px;
+  padding: 5px 12px 5px 8px;
+  color: rgba(255,255,255,0.9);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s;
+  align-self: flex-start;
+  margin-bottom: 16px;
+}
+.pom-toggle:hover { background: rgba(255,255,255,0.25); }
+.pom-toggle .material-symbols-rounded {
+  font-size: 18px;
+  color: rgba(255,255,255,0.9);
+  transition: transform .25s;
+}
+.pom-toggle.open .pom-toggle-chevron { transform: rotate(180deg); }
+.pom-toggle-sep { color: rgba(255,255,255,0.5); }
+
+/* ── Pomodoro expanded panel ── */
+.pomodoro-expanded {
+  background: rgba(255,255,255,0.14);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 14px;
+  animation: md-fade-in .2s ease both;
+}
+
 /* ── Pomodoro in hero panel ── */
 .hero-content .pomodoro-widget {
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: var(--radius-lg);
-  padding: 14px 16px;
-  margin-bottom: 16px;
   gap: 10px;
 }
 .hero-content .pom-modes {

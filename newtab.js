@@ -1397,11 +1397,14 @@ let _pomSecsLeft = POM_DURATIONS.work;
 let _pomRunning  = false;
 let _pomSessions = 0;
 let _pomInterval = null;
+let _pomExpanded = false;
 
 function pomUpdateDisplay() {
   const m = Math.floor(_pomSecsLeft / 60).toString().padStart(2, '0');
   const s = (_pomSecsLeft % 60).toString().padStart(2, '0');
-  document.getElementById('pom-time').textContent = `${m}:${s}`;
+  const timeStr = `${m}:${s}`;
+  document.getElementById('pom-time').textContent = timeStr;
+  document.getElementById('pom-toggle-time').textContent = timeStr;
   const fraction = _pomSecsLeft / POM_DURATIONS[_pomMode];
   document.getElementById('pom-ring-progress').style.strokeDashoffset =
     POM_CIRCUMFERENCE * (1 - fraction);
@@ -1415,6 +1418,7 @@ function pomSetMode(mode) {
   document.querySelectorAll('.pom-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
   document.getElementById('pom-start-icon').textContent = 'play_arrow';
   document.getElementById('pom-label').textContent = POM_LABELS[mode];
+  document.getElementById('pom-toggle-label-compact').textContent = POM_LABELS[mode];
   pomUpdateDisplay();
 }
 
@@ -1461,3 +1465,9 @@ _pomRingProgress.style.strokeDashoffset = 0;
 document.querySelectorAll('.pom-mode-btn').forEach(btn => { btn.onclick = () => pomSetMode(btn.dataset.mode); });
 document.getElementById('pom-start').onclick = pomToggle;
 document.getElementById('pom-reset').onclick = () => pomSetMode(_pomMode);
+
+document.getElementById('pom-toggle').onclick = () => {
+  _pomExpanded = !_pomExpanded;
+  document.getElementById('pom-expanded').classList.toggle('hidden', !_pomExpanded);
+  document.getElementById('pom-toggle').classList.toggle('open', _pomExpanded);
+};
