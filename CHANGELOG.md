@@ -1,3 +1,5 @@
+1.05: Fixed quick notes colour picker not appearing; picker now opens below the palette button
+
 1.04: Pomodoro timer is now a collapsible drop-down (like the weather forecast) — shows a compact toggle with live countdown and mode label; expands to the full ring/controls on click
 
 1.03: Moved Pomodoro timer to the hero panel (between clock and weather) to free up space in the right panel
