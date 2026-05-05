@@ -77,6 +77,8 @@ A polished, Material Design 3 new tab page with a dynamic time-of-day background
 
 No analytics, no tracking, no telemetry. The extension has no background scripts.
 
+> **Note:** This project is vibe coded with [Claude](https://claude.ai). If that matters to you, now you know.
+
 ## Keyboard shortcuts
 
 | Key | Action |
