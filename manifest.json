@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Launchpad New Tab",
-  "version": "1.0",
+  "version": "1.05",
   "description": "A beautiful new tab with time, weather, top sites, and recent downloads.",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
