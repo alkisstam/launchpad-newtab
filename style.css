@@ -827,7 +827,7 @@ html, body {
   padding: 0; min-width: 0;
 }
 .note-title-input::placeholder { color: var(--md-on-surface-variant); font-weight: 400; }
-.note-actions { display: flex; gap: 2px; opacity: 0; transition: opacity .15s; flex-shrink: 0; }
+.note-actions { display: flex; gap: 2px; opacity: 0; transition: opacity .15s; flex-shrink: 0; position: relative; }
 .note-card:hover .note-actions,
 .note-card:focus-within .note-actions { opacity: 1; }
 .note-btn {
@@ -849,7 +849,7 @@ html, body {
 .note-body-input::-webkit-scrollbar-thumb { background: var(--md-outline-variant); }
 .note-ts { font-family: var(--font-mono); font-size: 9px; color: var(--md-on-surface-variant); opacity: .7; letter-spacing: .03em; }
 .note-color-picker {
-  position: absolute; bottom: calc(100% + 4px); right: 0;
+  position: absolute; top: calc(100% + 4px); right: 0;
   display: flex; gap: 5px;
   background: var(--md-surface); border: 1px solid var(--md-outline-variant);
   border-radius: var(--radius-md); padding: 8px 10px;
