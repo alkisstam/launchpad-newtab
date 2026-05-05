@@ -1,4 +1,4 @@
-# Launchpad — Chrome New Tab Extension
+# Launchpad v1.05 — Chrome New Tab Extension
 
 A polished, Material Design 3 new tab page with a dynamic time-of-day background. Three vertical panels packed with everyday utilities: search, weather, sites, downloads, notes, and tasks.
 
