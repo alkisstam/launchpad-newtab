@@ -13,6 +13,22 @@ function escHtml(str) {
 function debounce(fn, ms) {
   let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
 }
+function looksLikeUrl(q) {
+  return /^https?:\/\//i.test(q) || (/^[\w-]+\.[\w.-]+/.test(q) && !q.includes(' '));
+}
+let _toastTimer;
+function showToast(msg) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('visible');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => toast.classList.remove('visible'), 2000);
+}
 
 
 // ─────────────────────────────────────
@@ -245,7 +261,7 @@ function setEngine(name) {
   saveEngine(name);
   document.getElementById('search-engine-label').textContent = ENGINES[name].label;
   document.querySelectorAll('.engine-opt').forEach(b => {
-    b.style.fontWeight = b.dataset.engine === name ? '700' : '400';
+    b.classList.toggle('active', b.dataset.engine === name);
   });
 }
 
@@ -262,8 +278,7 @@ searchInput.addEventListener('keydown', (e) => {
     const q = searchInput.value.trim();
     if (!q) return;
     // If it looks like a URL, navigate directly
-    const looksLikeUrl = /^https?:\/\//i.test(q) || (/^[\w-]+\.[\w.-]+/.test(q) && !q.includes(' '));
-    window.location.href = looksLikeUrl
+    window.location.href = looksLikeUrl(q)
       ? (q.includes('://') ? q : 'https://' + q)
       : ENGINES[currentEngine].url + encodeURIComponent(q);
   }
@@ -425,10 +440,15 @@ async function fetchWeather(lat, lon) {
   return (await fetch(url)).json();
 }
 
+let _weatherLat = null;
+let _weatherLon = null;
+
 async function initWeather() {
+  if (_weatherLat !== null) { refetchWeather(); return; }
   if (!navigator.geolocation) { showWeatherError(); return; }
   navigator.geolocation.getCurrentPosition(
     async ({ coords: { latitude: lat, longitude: lon } }) => {
+      _weatherLat = lat; _weatherLon = lon;
       try {
         const [data, loc] = await Promise.all([fetchWeather(lat, lon), reverseGeocode(lat, lon)]);
         renderWeather(data, loc);
@@ -438,8 +458,15 @@ async function initWeather() {
   );
 }
 
+async function refetchWeather() {
+  try {
+    const data = await fetchWeather(_weatherLat, _weatherLon);
+    renderWeather(data, _weatherLocation);
+  } catch { showWeatherError(); }
+}
+
 let _weatherExpanded = false;
-let _weatherData = null;        // cache for re-render on settings change
+let _weatherData = null;
 let _weatherLocation = null;
 
 function renderWeather(data, locationName) {
@@ -542,10 +569,28 @@ function renderTopSites() {
       const faviconUrl = getFaviconUrl(site.url);
       const initial = getInitial(site.url, site.title);
       const title = escHtml(cleanTitle(site.url, site.title));
-      const imgHtml = faviconUrl
-        ? `<img class="site-favicon" src="${faviconUrl}" alt="" onerror="this.outerHTML='<div class=\\'site-favicon-fallback\\'>${initial}</div>'">`
-        : `<div class="site-favicon-fallback">${initial}</div>`;
-      a.innerHTML = `${imgHtml}<span class="site-title">${title}</span>`;
+      let faviconEl;
+      if (faviconUrl) {
+        faviconEl = document.createElement('img');
+        faviconEl.className = 'site-favicon';
+        faviconEl.src = faviconUrl;
+        faviconEl.alt = '';
+        faviconEl.addEventListener('error', () => {
+          const fb = document.createElement('div');
+          fb.className = 'site-favicon-fallback';
+          fb.textContent = initial;
+          faviconEl.replaceWith(fb);
+        });
+      } else {
+        faviconEl = document.createElement('div');
+        faviconEl.className = 'site-favicon-fallback';
+        faviconEl.textContent = initial;
+      }
+      const titleEl = document.createElement('span');
+      titleEl.className = 'site-title';
+      titleEl.innerHTML = title;
+      a.appendChild(faviconEl);
+      a.appendChild(titleEl);
       grid.appendChild(a);
     });
   });
@@ -639,7 +684,11 @@ document.getElementById('dl-folder').onclick = (e) => {
 };
 document.getElementById('dl-copy').onclick = (e) => {
   e.stopPropagation();
-  if (_ctxItem) navigator.clipboard?.writeText(_ctxItem.filename).catch(() => {});
+  if (_ctxItem) {
+    navigator.clipboard?.writeText(_ctxItem.filename)
+      .then(() => showToast('Filename copied'))
+      .catch(() => showToast('Copy failed'));
+  }
   hideMenu();
 };
 document.getElementById('dl-delete').onclick = (e) => {
@@ -665,7 +714,7 @@ function renderDownloads() {
     items.forEach((item) => {
       const filename = item.filename
         ? item.filename.split(/[/\\]/).pop()
-        : (item.url?.split('/').pop().split('?')[0] || 'Unknown file');
+        : (() => { try { return new URL(item.url).pathname.split('/').pop() || 'Unknown file'; } catch { return 'Unknown file'; } })();
 
       const { group, icon } = classifyFile(filename);
       const size = formatBytes(item.fileSize || item.bytesReceived);
@@ -779,10 +828,28 @@ function renderFavorites(favs) {
     a.style.animationDelay = `${idx * 0.04}s`;
     const faviconUrl = getFaviconUrl(fav.url);
     const initial = (fav.name || fav.url).charAt(0).toUpperCase();
-    const imgHtml = faviconUrl
-      ? `<img class="site-favicon" src="${faviconUrl}" alt="" onerror="this.outerHTML='<div class=\\'site-favicon-fallback\\'>${escHtml(initial)}</div>'">`
-      : `<div class="site-favicon-fallback">${escHtml(initial)}</div>`;
-    a.innerHTML = `${imgHtml}<span class="site-title">${escHtml(fav.name || fav.url)}</span>`;
+    let faviconEl;
+    if (faviconUrl) {
+      faviconEl = document.createElement('img');
+      faviconEl.className = 'site-favicon';
+      faviconEl.src = faviconUrl;
+      faviconEl.alt = '';
+      faviconEl.addEventListener('error', () => {
+        const fb = document.createElement('div');
+        fb.className = 'site-favicon-fallback';
+        fb.textContent = initial;
+        faviconEl.replaceWith(fb);
+      });
+    } else {
+      faviconEl = document.createElement('div');
+      faviconEl.className = 'site-favicon-fallback';
+      faviconEl.textContent = initial;
+    }
+    const titleEl = document.createElement('span');
+    titleEl.className = 'site-title';
+    titleEl.textContent = fav.name || fav.url;
+    a.appendChild(faviconEl);
+    a.appendChild(titleEl);
 
     const editBtn = document.createElement('button');
     editBtn.className = 'fav-edit'; editBtn.title = 'Edit';
@@ -1085,8 +1152,7 @@ function updateSuggHighlight() {
 function runSearch(query) {
   const q = query.trim();
   if (!q) return;
-  const looksLikeUrl = /^https?:\/\//i.test(q) || (/^[\w-]+\.[\w.-]+/.test(q) && !q.includes(' '));
-  window.location.href = looksLikeUrl
+  window.location.href = looksLikeUrl(q)
     ? (q.includes('://') ? q : 'https://' + q)
     : ENGINES[currentEngine].url + encodeURIComponent(q);
 }
@@ -1168,6 +1234,7 @@ function renderTodos(todos) {
     text.contentEditable = 'true';
     text.spellcheck = false;
     text.textContent = todo.text || '';
+    text.title = todo.text || '';
     text.addEventListener('blur', () => {
       const newText = text.textContent.trim();
       if (newText === todo.text) return;
@@ -1274,7 +1341,7 @@ function changeSetting(key, value) {
   applySettingsToBody();
   // Side effects
   if (key === 'temp_unit' || key === 'wind_unit') {
-    if (_weatherData) initWeather(); // refetch with new units
+    if (_weatherLat !== null) refetchWeather();
   }
   if (key === 'clock_format') updateClock();
   if (key === 'name')         updateGreeting();
@@ -1366,7 +1433,7 @@ document.getElementById('settings-import-file').addEventListener('change', (e) =
       alert('Invalid backup file.');
     }
   };
-  reader.readAsText(file);
+  reader.readAsText(file, 'UTF-8');
   e.target.value = '';  // reset so re-importing same file works
 });
 

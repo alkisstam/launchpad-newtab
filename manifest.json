@@ -10,7 +10,8 @@
     "topSites",
     "downloads",
     "geolocation",
-    "storage"
+    "storage",
+    "notifications"
   ],
   "host_permissions": [
     "https://api.open-meteo.com/*",

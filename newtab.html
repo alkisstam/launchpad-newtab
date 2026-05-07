@@ -30,7 +30,7 @@
           <input class="search-input" id="search-input"
                  type="text" placeholder="Search the web…"
                  autocomplete="off" spellcheck="false" />
-          <div class="search-engine-btn" id="search-engine-btn" title="Switch search engine">
+          <div class="search-engine-btn" id="search-engine-btn" title="Switch search engine" role="button" aria-label="Switch search engine" tabindex="0">
             <span id="search-engine-label">G</span>
           </div>
         </div>
@@ -70,10 +70,10 @@
           </div>
         </div>
         <div class="pom-controls">
-          <button class="btn-icon-sm" id="pom-reset" title="Reset timer">
+          <button class="btn-icon-sm" id="pom-reset" title="Reset timer" aria-label="Reset timer">
             <span class="material-symbols-rounded">restart_alt</span>
           </button>
-          <button class="pom-start-btn" id="pom-start" title="Start / Pause">
+          <button class="pom-start-btn" id="pom-start" title="Start / Pause" aria-label="Start timer">
             <span class="material-symbols-rounded" id="pom-start-icon">play_arrow</span>
           </button>
           <div class="pom-session-count" title="Pomodoros completed">
@@ -124,7 +124,7 @@
     </div>
 
     <!-- Settings FAB -->
-    <button class="settings-fab" id="settings-fab" title="Settings">
+    <button class="settings-fab" id="settings-fab" title="Settings" aria-label="Open settings">
       <span class="material-symbols-rounded">settings</span>
     </button>
 
@@ -133,7 +133,7 @@
       <div class="settings-card md-card">
         <div class="settings-header">
           <p class="settings-title">Settings</p>
-          <button class="settings-close" id="settings-close" title="Close">
+          <button class="settings-close" id="settings-close" title="Close" aria-label="Close settings">
             <span class="material-symbols-rounded">close</span>
           </button>
         </div>
@@ -247,7 +247,7 @@
     <div class="panel-header">
       <span class="material-symbols-rounded">bookmark</span>
       <span class="panel-title">Favorites</span>
-      <button class="btn-icon-sm" id="btn-add-fav" title="Add favorite">
+      <button class="btn-icon-sm" id="btn-add-fav" title="Add favorite" aria-label="Add favorite">
         <span class="material-symbols-rounded">add</span>
       </button>
     </div>
@@ -307,7 +307,7 @@
     <div class="panel-header">
       <span class="material-symbols-rounded">edit_note</span>
       <span class="panel-title">Quick Notes</span>
-      <button class="btn-icon-sm" id="btn-add-note" title="New note">
+      <button class="btn-icon-sm" id="btn-add-note" title="New note" aria-label="Add note">
         <span class="material-symbols-rounded">add</span>
       </button>
     </div>
@@ -318,7 +318,7 @@
     <div class="panel-header">
       <span class="material-symbols-rounded">checklist</span>
       <span class="panel-title">To-Do</span>
-      <button class="btn-icon-sm" id="btn-todo-clear" title="Clear completed">
+      <button class="btn-icon-sm" id="btn-todo-clear" title="Clear completed" aria-label="Clear completed todos">
         <span class="material-symbols-rounded">cleaning_services</span>
       </button>
     </div>
