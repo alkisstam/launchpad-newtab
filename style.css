@@ -808,7 +808,6 @@ html, body {
 .notes-area::-webkit-scrollbar { width: 3px; }
 .notes-area::-webkit-scrollbar-thumb { background: var(--md-outline-variant); border-radius: 3px; }
 
-.note-empty { font-size: 13px; color: var(--md-on-surface-variant); padding: 8px; }
 
 .note-card {
   border-radius: var(--radius-md); padding: 12px 14px;
@@ -1307,7 +1306,6 @@ body.dark .note-btn.delete:hover { background: #3b1a1a; }
 /* ══════════════════════════════════════════════
    DRAG & DROP STATES
    ══════════════════════════════════════════════ */
-.drag-source { opacity: 0.4; }
 .drag-over {
   outline: 2px dashed var(--md-primary);
   outline-offset: -2px;

@@ -466,11 +466,9 @@ async function refetchWeather() {
 }
 
 let _weatherExpanded = false;
-let _weatherData = null;
 let _weatherLocation = null;
 
 function renderWeather(data, locationName) {
-  _weatherData = data;
   _weatherLocation = locationName;
 
   const c = data.current;
@@ -548,6 +546,26 @@ function getFaviconUrl(url) {
   catch { return ''; }
 }
 function getInitial(url, title) { return cleanTitle(url, title).charAt(0).toUpperCase(); }
+function createFaviconEl(url, initial) {
+  const faviconUrl = getFaviconUrl(url);
+  if (faviconUrl) {
+    const img = document.createElement('img');
+    img.className = 'site-favicon';
+    img.src = faviconUrl;
+    img.alt = '';
+    img.addEventListener('error', () => {
+      const fb = document.createElement('div');
+      fb.className = 'site-favicon-fallback';
+      fb.textContent = initial;
+      img.replaceWith(fb);
+    });
+    return img;
+  }
+  const fb = document.createElement('div');
+  fb.className = 'site-favicon-fallback';
+  fb.textContent = initial;
+  return fb;
+}
 
 function renderTopSites() {
   const grid = document.getElementById('sites-grid');
@@ -566,30 +584,11 @@ function renderTopSites() {
       const a = document.createElement('a');
       a.className = 'site-card md-card ripple';
       a.href = site.url; a.title = site.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
-      const faviconUrl = getFaviconUrl(site.url);
       const initial = getInitial(site.url, site.title);
-      const title = escHtml(cleanTitle(site.url, site.title));
-      let faviconEl;
-      if (faviconUrl) {
-        faviconEl = document.createElement('img');
-        faviconEl.className = 'site-favicon';
-        faviconEl.src = faviconUrl;
-        faviconEl.alt = '';
-        faviconEl.addEventListener('error', () => {
-          const fb = document.createElement('div');
-          fb.className = 'site-favicon-fallback';
-          fb.textContent = initial;
-          faviconEl.replaceWith(fb);
-        });
-      } else {
-        faviconEl = document.createElement('div');
-        faviconEl.className = 'site-favicon-fallback';
-        faviconEl.textContent = initial;
-      }
       const titleEl = document.createElement('span');
       titleEl.className = 'site-title';
-      titleEl.innerHTML = title;
-      a.appendChild(faviconEl);
+      titleEl.textContent = cleanTitle(site.url, site.title);
+      a.appendChild(createFaviconEl(site.url, initial));
       a.appendChild(titleEl);
       grid.appendChild(a);
     });
@@ -826,29 +825,11 @@ function renderFavorites(favs) {
     a.href = fav.url; a.title = fav.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
     a.draggable = false;
     a.style.animationDelay = `${idx * 0.04}s`;
-    const faviconUrl = getFaviconUrl(fav.url);
     const initial = (fav.name || fav.url).charAt(0).toUpperCase();
-    let faviconEl;
-    if (faviconUrl) {
-      faviconEl = document.createElement('img');
-      faviconEl.className = 'site-favicon';
-      faviconEl.src = faviconUrl;
-      faviconEl.alt = '';
-      faviconEl.addEventListener('error', () => {
-        const fb = document.createElement('div');
-        fb.className = 'site-favicon-fallback';
-        fb.textContent = initial;
-        faviconEl.replaceWith(fb);
-      });
-    } else {
-      faviconEl = document.createElement('div');
-      faviconEl.className = 'site-favicon-fallback';
-      faviconEl.textContent = initial;
-    }
     const titleEl = document.createElement('span');
     titleEl.className = 'site-title';
     titleEl.textContent = fav.name || fav.url;
-    a.appendChild(faviconEl);
+    a.appendChild(createFaviconEl(fav.url, initial));
     a.appendChild(titleEl);
 
     const editBtn = document.createElement('button');
