@@ -229,15 +229,18 @@ const ENGINE_KEY = 'launchpad_engine';
 let currentEngine = 'google';
 
 function loadEngine(cb) {
+  const done = (e) => cb(ENGINES[e] ? e : 'google');
   if (chrome?.storage?.sync) {
-    chrome.storage.sync.get([ENGINE_KEY], (r) => cb(r[ENGINE_KEY] || 'google'));
+    chrome.storage.sync.get([ENGINE_KEY], (r) => done(r[ENGINE_KEY]));
   } else {
-    cb(localStorage.getItem(ENGINE_KEY) || 'google');
+    let e = localStorage.getItem(ENGINE_KEY);
+    try { e = JSON.parse(e); } catch {} // older saves stored the raw string
+    done(e);
   }
 }
 function saveEngine(e) {
   if (chrome?.storage?.sync) chrome.storage.sync.set({ [ENGINE_KEY]: e });
-  else localStorage.setItem(ENGINE_KEY, e);
+  else localStorage.setItem(ENGINE_KEY, JSON.stringify(e));
 }
 
 function setEngine(name) {
@@ -429,6 +432,8 @@ async function initWeather() {
   if (!navigator.geolocation) { showWeatherError(); return; }
   navigator.geolocation.getCurrentPosition(
     async ({ coords: { latitude: lat, longitude: lon } }) => {
+      _weatherLat = lat;
+      _weatherLon = lon;
       try {
         const [data, loc] = await Promise.all([fetchWeather(lat, lon), reverseGeocode(lat, lon)]);
         renderWeather(data, loc);
@@ -439,8 +444,10 @@ async function initWeather() {
 }
 
 let _weatherExpanded = false;
-let _weatherData = null;        // cache for re-render on settings change
+let _weatherData = null;
 let _weatherLocation = null;
+let _weatherLat = null;
+let _weatherLon = null;
 
 function renderWeather(data, locationName) {
   _weatherData = data;
@@ -615,12 +622,11 @@ function showMenu(e, item, filename) {
   e.stopPropagation();
   _ctxItem = { item, filename };
 
-  // Position menu near cursor, keep inside viewport
-  const x = Math.min(e.clientX, window.innerWidth  - 200);
-  const y = Math.min(e.clientY, window.innerHeight - 160);
+  dlMenu.classList.remove('hidden');
+  const x = Math.min(e.clientX, window.innerWidth  - dlMenu.offsetWidth  - 4);
+  const y = Math.min(e.clientY, window.innerHeight - dlMenu.offsetHeight - 4);
   dlMenu.style.left = x + 'px';
   dlMenu.style.top  = y + 'px';
-  dlMenu.classList.remove('hidden');
 
   // Disable "Open file" if not complete
   document.getElementById('dl-open').disabled   = item.state !== 'complete';
@@ -745,7 +751,7 @@ function renderFavorites(favs) {
     // Drag-reorder handlers
     wrap.addEventListener('dragstart', (e) => {
       e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', String(idx));
+      e.dataTransfer.setData('application/x-fav', String(idx));
       wrap.classList.add('dragging');
     });
     wrap.addEventListener('dragend', () => {
@@ -762,7 +768,7 @@ function renderFavorites(favs) {
       e.preventDefault();
       e.stopPropagation();
       wrap.classList.remove('drag-over');
-      const fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+      const fromIdx = parseInt(e.dataTransfer.getData('application/x-fav'), 10);
       const toIdx   = idx;
       if (isNaN(fromIdx) || fromIdx === toIdx) return;
       loadFavorites((fs) => {
@@ -914,7 +920,7 @@ function renderNotes(notes) {
         return;
       }
       e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', String(idx));
+      e.dataTransfer.setData('application/x-note', String(idx));
       card.classList.add('dragging');
     });
     card.addEventListener('dragend', () => {
@@ -931,7 +937,7 @@ function renderNotes(notes) {
       e.preventDefault();
       e.stopPropagation();
       card.classList.remove('drag-over');
-      const fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+      const fromIdx = parseInt(e.dataTransfer.getData('application/x-note'), 10);
       const toIdx   = idx;
       if (isNaN(fromIdx) || fromIdx === toIdx) return;
       loadNotes((ns) => {
@@ -1154,6 +1160,42 @@ function renderTodos(todos) {
   todos.forEach((todo, idx) => {
     const li = document.createElement('li');
     li.className = 'todo-item' + (todo.done ? ' done' : '');
+    li.draggable = true;
+
+    li.addEventListener('dragstart', (e) => {
+      if (e.target.matches('[contenteditable], button')) { e.preventDefault(); return; }
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('application/x-todo', String(idx));
+      li.classList.add('dragging');
+    });
+    li.addEventListener('dragend', () => {
+      li.classList.remove('dragging');
+      document.querySelectorAll('.todo-item.drag-over').forEach(el => el.classList.remove('drag-over'));
+    });
+    li.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (!li.classList.contains('dragging')) li.classList.add('drag-over');
+    });
+    li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+    li.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      li.classList.remove('drag-over');
+      const fromIdx = parseInt(e.dataTransfer.getData('application/x-todo'), 10);
+      const toIdx   = idx;
+      if (isNaN(fromIdx) || fromIdx === toIdx) return;
+      loadTodos((ts) => {
+        const [moved] = ts.splice(fromIdx, 1);
+        ts.splice(toIdx, 0, moved);
+        saveTodos(ts, () => renderTodos(ts));
+      });
+    });
+
+    const handle = document.createElement('span');
+    handle.className = 'todo-handle';
+    handle.textContent = '⠿⠿';
+    handle.setAttribute('aria-hidden', 'true');
 
     const cb = document.createElement('div');
     cb.className = 'todo-checkbox';
@@ -1192,6 +1234,7 @@ function renderTodos(todos) {
       loadTodos((ts) => { ts.splice(idx, 1); saveTodos(ts, () => renderTodos(ts)); });
     };
 
+    li.appendChild(handle);
     li.appendChild(cb);
     li.appendChild(text);
     li.appendChild(del);
@@ -1274,7 +1317,11 @@ function changeSetting(key, value) {
   applySettingsToBody();
   // Side effects
   if (key === 'temp_unit' || key === 'wind_unit') {
-    if (_weatherData) initWeather(); // refetch with new units
+    if (_weatherData && _weatherLat !== null) {
+      fetchWeather(_weatherLat, _weatherLon)
+        .then(data => renderWeather(data, _weatherLocation))
+        .catch(() => {});
+    }
   }
   if (key === 'clock_format') updateClock();
   if (key === 'name')         updateGreeting();
@@ -1326,9 +1373,10 @@ document.getElementById('settings-export').onclick = () => {
     collect(STORAGE_KEY,  []),  // favorites
     collect(NOTES_KEY,    []),
     collect(TODO_KEY,     []),
-  ]).then(([settings, favorites, notes, todos]) => {
+    collect(ENGINE_KEY,   'google'),
+  ]).then(([settings, favorites, notes, todos, engine]) => {
     const blob = new Blob(
-      [JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), settings, favorites, notes, todos }, null, 2)],
+      [JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), settings, favorites, notes, todos, engine }, null, 2)],
       { type: 'application/json' }
     );
     const url = URL.createObjectURL(blob);
@@ -1356,6 +1404,7 @@ document.getElementById('settings-import-file').addEventListener('change', (e) =
       if (data.favorites) writes.push([STORAGE_KEY,  data.favorites]);
       if (data.notes)     writes.push([NOTES_KEY,    data.notes]);
       if (data.todos)     writes.push([TODO_KEY,     data.todos]);
+      if (data.engine)    writes.push([ENGINE_KEY,   data.engine]);
       writes.forEach(([k, v]) => {
         if (chrome?.storage?.sync) chrome.storage.sync.set({ [k]: v });
         else localStorage.setItem(k, JSON.stringify(v));

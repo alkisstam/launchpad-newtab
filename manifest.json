@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Launchpad New Tab",
-  "version": "1.05",
+  "version": "1.0.5",
   "description": "Material Design 3 new tab with clock, weather, search suggestions, top sites, favorites, downloads, quick notes, to-do list, and Pomodoro timer.",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
@@ -9,6 +9,7 @@
   "permissions": [
     "topSites",
     "downloads",
+    "downloads.open",
     "geolocation",
     "storage"
   ],

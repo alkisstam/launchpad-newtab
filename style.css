@@ -1319,7 +1319,6 @@ body.dark .note-btn.delete:hover { background: #3b1a1a; }
 /* ══════════════════════════════════════════════
    DRAG & DROP STATES
    ══════════════════════════════════════════════ */
-.drag-source { opacity: 0.4; }
 .drag-over {
   outline: 2px dashed var(--md-primary);
   outline-offset: -2px;
