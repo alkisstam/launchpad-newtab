@@ -13,6 +13,37 @@ function escHtml(str) {
 function debounce(fn, ms) {
   let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
 }
+function makeReorderable(el, idx, type, load, commit, skip) {
+  el.draggable = true;
+  el.addEventListener('dragstart', (e) => {
+    if (skip && e.target.matches(skip)) { e.preventDefault(); return; }
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData(type, String(idx));
+    el.classList.add('dragging');
+  });
+  el.addEventListener('dragend', () => {
+    el.classList.remove('dragging');
+    document.querySelectorAll('.drag-over').forEach(n => n.classList.remove('drag-over'));
+  });
+  el.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (!el.classList.contains('dragging')) el.classList.add('drag-over');
+  });
+  el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+  el.addEventListener('drop', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    el.classList.remove('drag-over');
+    const fromIdx = parseInt(e.dataTransfer.getData(type), 10);
+    if (isNaN(fromIdx) || fromIdx === idx) return;
+    load((list) => {
+      const [moved] = list.splice(fromIdx, 1);
+      list.splice(idx, 0, moved);
+      commit(list);
+    });
+  });
+}
 
 
 // ─────────────────────────────────────
@@ -745,38 +776,9 @@ function renderFavorites(favs) {
   favs.forEach((fav, idx) => {
     const wrap = document.createElement('div');
     wrap.className = 'fav-card';
-    wrap.draggable = true;
     wrap.dataset.idx = idx;
-
-    // Drag-reorder handlers
-    wrap.addEventListener('dragstart', (e) => {
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('application/x-fav', String(idx));
-      wrap.classList.add('dragging');
-    });
-    wrap.addEventListener('dragend', () => {
-      wrap.classList.remove('dragging');
-      document.querySelectorAll('.fav-card.drag-over').forEach(el => el.classList.remove('drag-over'));
-    });
-    wrap.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      if (!wrap.classList.contains('dragging')) wrap.classList.add('drag-over');
-    });
-    wrap.addEventListener('dragleave', () => wrap.classList.remove('drag-over'));
-    wrap.addEventListener('drop', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      wrap.classList.remove('drag-over');
-      const fromIdx = parseInt(e.dataTransfer.getData('application/x-fav'), 10);
-      const toIdx   = idx;
-      if (isNaN(fromIdx) || fromIdx === toIdx) return;
-      loadFavorites((fs) => {
-        const [moved] = fs.splice(fromIdx, 1);
-        fs.splice(toIdx, 0, moved);
-        saveFavorites(fs, () => renderFavorites(fs));
-      });
-    });
+    makeReorderable(wrap, idx, 'application/x-fav', loadFavorites,
+      (fs) => saveFavorites(fs, () => renderFavorites(fs)));
 
     const a = document.createElement('a');
     a.className = 'site-card md-card ripple';
@@ -909,44 +911,9 @@ function renderNotes(notes) {
     const card = document.createElement('div');
     card.className = 'note-card md-card';
     card.style.setProperty('--note-color', note.color || NOTE_COLORS[0].value);
-    card.draggable = true;
     card.dataset.idx = idx;
-
-    // Drag-reorder
-    card.addEventListener('dragstart', (e) => {
-      // Don't start drag from inputs / textareas
-      if (e.target.matches('input, textarea, button')) {
-        e.preventDefault();
-        return;
-      }
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('application/x-note', String(idx));
-      card.classList.add('dragging');
-    });
-    card.addEventListener('dragend', () => {
-      card.classList.remove('dragging');
-      document.querySelectorAll('.note-card.drag-over').forEach(el => el.classList.remove('drag-over'));
-    });
-    card.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      if (!card.classList.contains('dragging')) card.classList.add('drag-over');
-    });
-    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
-    card.addEventListener('drop', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      card.classList.remove('drag-over');
-      const fromIdx = parseInt(e.dataTransfer.getData('application/x-note'), 10);
-      const toIdx   = idx;
-      if (isNaN(fromIdx) || fromIdx === toIdx) return;
-      loadNotes((ns) => {
-        const [moved] = ns.splice(fromIdx, 1);
-        ns.splice(toIdx, 0, moved);
-        saveNotes(ns);
-        renderNotes(ns);
-      });
-    });
+    makeReorderable(card, idx, 'application/x-note', loadNotes,
+      (ns) => { saveNotes(ns); renderNotes(ns); }, 'input, textarea, button');
     const debouncedSave = debounce(() => {
       loadNotes((ns) => {
         ns[idx] = { ...ns[idx], title: card.querySelector('.note-title-input').value, body: card.querySelector('.note-body-input').value, updatedAt: new Date().toISOString() };
@@ -1160,37 +1127,8 @@ function renderTodos(todos) {
   todos.forEach((todo, idx) => {
     const li = document.createElement('li');
     li.className = 'todo-item' + (todo.done ? ' done' : '');
-    li.draggable = true;
-
-    li.addEventListener('dragstart', (e) => {
-      if (e.target.matches('[contenteditable], button')) { e.preventDefault(); return; }
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('application/x-todo', String(idx));
-      li.classList.add('dragging');
-    });
-    li.addEventListener('dragend', () => {
-      li.classList.remove('dragging');
-      document.querySelectorAll('.todo-item.drag-over').forEach(el => el.classList.remove('drag-over'));
-    });
-    li.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      if (!li.classList.contains('dragging')) li.classList.add('drag-over');
-    });
-    li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
-    li.addEventListener('drop', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      li.classList.remove('drag-over');
-      const fromIdx = parseInt(e.dataTransfer.getData('application/x-todo'), 10);
-      const toIdx   = idx;
-      if (isNaN(fromIdx) || fromIdx === toIdx) return;
-      loadTodos((ts) => {
-        const [moved] = ts.splice(fromIdx, 1);
-        ts.splice(toIdx, 0, moved);
-        saveTodos(ts, () => renderTodos(ts));
-      });
-    });
+    makeReorderable(li, idx, 'application/x-todo', loadTodos,
+      (ts) => saveTodos(ts, () => renderTodos(ts)), '[contenteditable], button');
 
     const handle = document.createElement('span');
     handle.className = 'todo-handle';
