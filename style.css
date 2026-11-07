@@ -506,8 +506,16 @@ html, body {
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   padding: 2px 2px 4px;
-  /* No scroll — max 12 tiles always visible in fixed 3-row grid */
 }
+#favs-grid .empty-state { grid-column: 1 / -1; }
+#favs-grid .fav-add {
+  min-height: 66px;
+  border-style: dashed;
+  background: transparent;
+  color: var(--md-on-surface-variant);
+}
+#favs-grid .fav-add .material-symbols-rounded { font-size: 24px; }
+#favs-grid .fav-add:hover { color: var(--md-primary); }
 
 /* Override site-card inside favs-grid to icon-tile layout */
 #favs-grid .site-card {
@@ -683,20 +691,21 @@ html, body {
    ══════════════════════════════════════════════ */
 .panel-downloads {
   padding-top: 36px;
-  overflow-y: auto;
   padding-bottom: 24px;
 }
-.panel-downloads::-webkit-scrollbar { width: 4px; }
-.panel-downloads::-webkit-scrollbar-thumb { background: var(--md-outline-variant); border-radius: 4px; }
+
+.split-pane { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
 
 /* Downloads grid */
 .dl-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 54px;
   gap: 8px;
-  max-height: 36vh;
+  max-height: calc(2 * 54px + 8px + 6px); /* 2 rows + gap + padding */
   overflow-y: auto;
   padding: 2px 2px 4px;
+  flex-shrink: 0;
 }
 .dl-grid::-webkit-scrollbar { width: 3px; }
 .dl-grid::-webkit-scrollbar-thumb { background: var(--md-outline-variant); border-radius: 3px; }
@@ -814,6 +823,7 @@ html, body {
   display: flex; flex-direction: column; gap: 6px;
   animation: md-fade-in .3s cubic-bezier(.2,.8,.4,1) both;
   position: relative; background: var(--md-surface);
+  flex-shrink: 0;
 }
 .note-card::after {
   content: ''; position: absolute;
@@ -842,7 +852,7 @@ html, body {
 .note-body-input {
   font-family: var(--font-body); font-size: 12px; line-height: 1.55;
   color: var(--md-on-surface); background: transparent; border: none; outline: none;
-  resize: none; width: 100%; min-height: 52px; max-height: 120px; padding: 0; overflow-y: auto;
+  resize: none; width: 100%; min-height: calc(3 * 1.55em); max-height: 120px; padding: 0; overflow-y: auto;
 }
 .note-body-input::placeholder { color: var(--md-on-surface-variant); }
 .note-body-input::-webkit-scrollbar { width: 2px; }
@@ -1221,7 +1231,12 @@ body.dark .note-btn.delete:hover { background: #3b1a1a; }
   flex-direction: column;
   gap: 4px;
   padding: 2px 2px 4px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
+.todo-list::-webkit-scrollbar { width: 3px; }
+.todo-list::-webkit-scrollbar-thumb { background: var(--md-outline-variant); border-radius: 3px; }
 
 .todo-item {
   display: flex;
@@ -1234,6 +1249,7 @@ body.dark .note-btn.delete:hover { background: #3b1a1a; }
   animation: md-fade-in .25s ease both;
   cursor: grab;
   user-select: none;
+  flex-shrink: 0;
 }
 .todo-item:hover { background: var(--md-surface-container-low); }
 .todo-item.dragging { opacity: 0.4; cursor: grabbing; }

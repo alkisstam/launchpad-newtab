@@ -751,6 +751,7 @@ renderDownloads();
 // 8. FAVORITES
 // ─────────────────────────────────────
 const STORAGE_KEY = 'launchpad_favorites';
+const FAV_MAX = 20;
 
 function loadFavorites(cb) {
   if (chrome?.storage?.sync) chrome.storage.sync.get([STORAGE_KEY], (r) => cb(r[STORAGE_KEY] || []));
@@ -765,13 +766,8 @@ function renderFavorites(favs) {
   const grid = document.getElementById('favs-grid');
   grid.innerHTML = '';
 
-  // Show/hide the + button based on whether the grid is full
-  const addBtn = document.getElementById('btn-add-fav');
-  addBtn.style.display = favs.length >= 12 ? 'none' : '';
-
   if (!favs.length) {
-    renderEmptyState(grid, 'favorites', 'No favorites yet', 'Tap + above to pin your most-loved sites for quick access.');
-    return;
+    renderEmptyState(grid, 'favorites', 'No favorites yet', 'Tap + below to pin your most-loved sites for quick access.');
   }
   favs.forEach((fav, idx) => {
     const wrap = document.createElement('div');
@@ -808,6 +804,15 @@ function renderFavorites(favs) {
     wrap.appendChild(a); wrap.appendChild(editBtn); wrap.appendChild(delBtn);
     grid.appendChild(wrap);
   });
+
+  if (favs.length < FAV_MAX) {
+    const add = document.createElement('button');
+    add.className = 'site-card md-card ripple fav-add';
+    add.title = 'Add favorite';
+    add.innerHTML = `<span class="material-symbols-rounded">add</span>`;
+    add.onclick = () => openFavDialog();
+    grid.appendChild(add);
+  }
 }
 
 let _editingFavIdx = null;
@@ -838,7 +843,6 @@ function showInputError(input, msg) {
   input.insertAdjacentElement('afterend', err);
 }
 
-document.getElementById('btn-add-fav').onclick = () => openFavDialog();
 document.getElementById('fav-cancel').onclick = closeFavDialog;
 document.getElementById('fav-dialog').addEventListener('click', (e) => { if (e.target === document.getElementById('fav-dialog')) closeFavDialog(); });
 
@@ -859,7 +863,7 @@ document.getElementById('fav-save').onclick = () => {
   loadFavorites((favs) => {
     if (_editingFavIdx !== null) favs[_editingFavIdx] = { ...favs[_editingFavIdx], name, url };
     else favs.push({ id: Date.now(), name, url });
-    favs = favs.slice(0, 12); // hard cap
+    favs = favs.slice(0, FAV_MAX);
     saveFavorites(favs, () => { renderFavorites(favs); closeFavDialog(); });
   });
 };

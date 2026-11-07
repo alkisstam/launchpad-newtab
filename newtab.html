@@ -256,9 +256,6 @@
     <div class="panel-header">
       <span class="material-symbols-rounded">bookmark</span>
       <span class="panel-title">Favorites</span>
-      <button class="btn-icon-sm" id="btn-add-fav" title="Add favorite">
-        <span class="material-symbols-rounded">add</span>
-      </button>
     </div>
     <div class="sites-grid" id="favs-grid">
       <div class="sites-placeholder" id="favs-placeholder">No favorites yet — click + to add one.</div>
@@ -296,29 +293,33 @@
 
     <div class="section-divider"></div>
 
-    <div class="panel-header">
-      <span class="material-symbols-rounded">edit_note</span>
-      <span class="panel-title">Quick Notes</span>
-      <button class="btn-icon-sm" id="btn-add-note" title="New note">
-        <span class="material-symbols-rounded">add</span>
-      </button>
+    <div class="split-pane">
+      <div class="panel-header">
+        <span class="material-symbols-rounded">edit_note</span>
+        <span class="panel-title">Quick Notes</span>
+        <button class="btn-icon-sm" id="btn-add-note" title="New note">
+          <span class="material-symbols-rounded">add</span>
+        </button>
+      </div>
+      <div class="notes-area" id="notes-area"></div>
     </div>
-    <div class="notes-area" id="notes-area"></div>
 
     <div class="section-divider"></div>
 
-    <div class="panel-header">
-      <span class="material-symbols-rounded">checklist</span>
-      <span class="panel-title">To-Do</span>
-      <button class="btn-icon-sm" id="btn-todo-clear" title="Clear completed">
-        <span class="material-symbols-rounded">cleaning_services</span>
-      </button>
+    <div class="split-pane">
+      <div class="panel-header">
+        <span class="material-symbols-rounded">checklist</span>
+        <span class="panel-title">To-Do</span>
+        <button class="btn-icon-sm" id="btn-todo-clear" title="Clear completed">
+          <span class="material-symbols-rounded">cleaning_services</span>
+        </button>
+      </div>
+      <div class="todo-input-row">
+        <input class="todo-input" id="todo-input" type="text"
+               placeholder="Add a task and press Enter…" maxlength="140" />
+      </div>
+      <ul class="todo-list" id="todo-list"></ul>
     </div>
-    <div class="todo-input-row">
-      <input class="todo-input" id="todo-input" type="text"
-             placeholder="Add a task and press Enter…" maxlength="140" />
-    </div>
-    <ul class="todo-list" id="todo-list"></ul>
 
 
   </section>
