@@ -1318,8 +1318,9 @@ function changeSetting(key, value) {
   // Side effects
   if (key === 'temp_unit' || key === 'wind_unit') {
     if (_weatherData && _weatherLat !== null) {
+      const units = SETTINGS.temp_unit + SETTINGS.wind_unit;
       fetchWeather(_weatherLat, _weatherLon)
-        .then(data => renderWeather(data, _weatherLocation))
+        .then(data => { if (units === SETTINGS.temp_unit + SETTINGS.wind_unit) renderWeather(data, _weatherLocation); })
         .catch(() => {});
     }
   }
